@@ -15,14 +15,12 @@
       --text-color: #000000;
       --card-color: #f0f0f0;
     }
-
     body {
       margin: 0;
       font-family: sans-serif;
       background: var(--bg-color);
       color: var(--text-color);
     }
-
     .sidebar {
       position: fixed;
       left: 0;
@@ -33,12 +31,10 @@
       padding: 20px;
       box-shadow: 2px 0 5px #000;
     }
-
     .sidebar h2 {
       font-size: 20px;
       margin-bottom: 20px;
     }
-
     .sidebar button {
       display: block;
       width: 100%;
@@ -51,12 +47,10 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     .main {
       margin-left: 240px;
       padding: 20px;
     }
-
     .section {
       display: none;
       background: var(--card-color);
@@ -64,11 +58,9 @@
       border-radius: 12px;
       margin-bottom: 20px;
     }
-
     .section.active {
       display: block;
     }
-
     textarea, input[type="text"], input[type="email"], input[type="password"], input[type="file"] {
       width: 100%;
       margin-top: 10px;
@@ -79,7 +71,6 @@
       background: var(--bg-color);
       color: var(--text-color);
     }
-
     .btn {
       margin-top: 15px;
       padding: 12px 24px;
@@ -90,7 +81,6 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     .toast {
       position: fixed;
       bottom: 20px;
@@ -103,31 +93,26 @@
       display: none;
       z-index: 999;
     }
-
     .emoji-select {
       font-size: 28px;
       cursor: pointer;
       padding: 4px;
     }
-
     .emoji-select.selected {
       background: #444;
       border-radius: 6px;
     }
-
     .post {
       padding: 16px;
       background: var(--card-color);
       margin-bottom: 20px;
       border-radius: 10px;
     }
-
     .for-you {
       text-align: center;
       font-size: 18px;
       margin: 20px 0;
     }
-
     #logoutPopup {
       position: fixed;
       top: 30%;
@@ -140,7 +125,6 @@
       display: none;
       z-index: 1000;
     }
-
     .profile-pic {
       width: 80px;
       height: 80px;
@@ -162,11 +146,8 @@
     <button onclick="switchSection('settings')">⚙️ Settings</button>
     <button onclick="confirmLogout()">🚪 Log out</button>
   </div>
-
   <div class="main">
     <div id="toast" class="toast"></div>
-
-    <!-- Sections will be filled in next parts -->
     <div id="signup" class="section active"></div>
     <div id="publish" class="section"></div>
     <div id="foryou" class="section"></div>
@@ -174,277 +155,388 @@
     <div id="profile" class="section"></div>
     <div id="settings" class="section"></div>
   </div>
-
   <div id="logoutPopup">
     <p>Er du sikker på at du vil logge ut?</p>
     <button onclick="logout(true)">Ja</button>
     <button onclick="logout(false)">Nei</button>
   </div>
-
   <script>
-    function switchSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mirror 4.0 – Ærlig Feedback</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-color: #0a0a0a;
+      --text-color: white;
+      --card-color: #1a1a1a;
     }
-
-    function confirmLogout() {
-      document.getElementById('logoutPopup').style.display = 'block';
+    body.light {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --card-color: #f0f0f0;
     }
-
-    function logout(confirm) {
-      if (confirm) {
-        localStorage.removeItem(\"mirror_user\");
-        location.reload();
-      } else {
-        document.getElementById('logoutPopup').style.display = 'none';
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+    }
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      width: 220px;
+      background: #111;
+      padding: 20px;
+      box-shadow: 2px 0 5px #000;
+    }
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .sidebar button {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      font-size: 16px;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .main {
+      margin-left: 240px;
+      padding: 20px;
+    }
+    .section {
+      display: none;
+      background: var(--card-color);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .section.active {
+      display: block;
+    }
+    textarea, input[type="text"], input[type="email"], input[type="password"], input[type="file"] {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      background: var(--bg-color);
+      color: var(--text-color);
+    }
+    .btn {
+      margin-top: 15px;
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      display: none;
+      z-index: 999;
+    }
+    .emoji-select {
+      font-size: 28px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .emoji-select.selected {
+      background: #444;
+      border-radius: 6px;
+    }
+    .post {
+      padding: 16px;
+      background: var(--card-color);
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+    .for-you {
+      text-align: center;
+      font-size: 18px;
+      margin: 20px 0;
+    }
+    #logoutPopup {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card-color);
+      color: var(--text-color);
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      z-index: 1000;
+    }
+    .profile-pic {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Mirror</h2>
+    <button onclick="switchSection('signup')">Sign up / Log in</button>
+    <button onclick="switchSection('publish')">📤 Publish</button>
+    <button onclick="switchSection('foryou')">🧠 For You</button>
+    <button onclick="switchSection('feedback')">💬 Feedback</button>
+    <button onclick="switchSection('profile')">👤 Your Profile</button>
+    <button onclick="switchSection('settings')">⚙️ Settings</button>
+    <button onclick="confirmLogout()">🚪 Log out</button>
+  </div>
+  <div class="main">
+    <div id="toast" class="toast"></div>
+    <div id="signup" class="section active"></div>
+    <div id="publish" class="section"></div>
+    <div id="foryou" class="section"></div>
+    <div id="feedback" class="section"></div>
+    <div id="profile" class="section"></div>
+    <div id="settings" class="section"></div>
+  </div>
+  <div id="logoutPopup">
+    <p>Er du sikker på at du vil logge ut?</p>
+    <button onclick="logout(true)">Ja</button>
+    <button onclick="logout(false)">Nei</button>
+  </div>
+  <script>
+    // === Mirror 4.0 JavaScript ===
+let posts = JSON.parse(localStorage.getItem("mirror_posts")) || [];
+let users = JSON.parse(localStorage.getItem("mirror_users")) || {};
+let currentUser = localStorage.getItem("mirror_user") || null;
+let tempCode = "";
+const bannedWords = ["fuck", "shit", "helvete", "idiot", "hore", "bitch", "dritt"];
+const emojis = ["😡", "😕", "😐", "🙂", "😃"];
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.style.display = "block";
+  setTimeout(() => (toast.style.display = "none"), 3000);
+}
+function filterText(text) {
+  let clean = text;
+  bannedWords.forEach(word => {
+    const regex = new RegExp(word, 'gi');
+    clean = clean.replace(regex, '***');
+  });
+  return clean;
+}
+function generateCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+function registerUser(username, password, gmail, profilePic) {
+  if (password.length < 8) return showToast("Passord må være minst 8 tegn.");
+  if (users[username]) return showToast("Brukernavn er allerede tatt.");
+  tempCode = generateCode();
+  alert("Verifiser Gmail: Skriv inn koden " + tempCode);
+  const inputCode = prompt("Skriv inn 6-sifret kode:");
+  if (inputCode !== tempCode) return showToast("Feil kode!");
+  users[username] = { password, gmail, profilePic };
+  localStorage.setItem("mirror_users", JSON.stringify(users));
+  localStorage.setItem("mirror_user", username);
+  showToast("Registrert!");
+  location.reload();
+}
+function loginUser(username, password) {
+  if (!users[username]) return showToast("Brukernavnet finnes ikke.");
+  if (users[username].password !== password) return showToast("Feil passord.");
+  localStorage.setItem("mirror_user", username);
+  showToast("Logget inn!");
+  location.reload();
+}
+function emojiRating(selectedEmoji) {
+  document.querySelectorAll(".emoji-select").forEach(e => e.classList.remove("selected"));
+  selectedEmoji.classList.add("selected");
+}
+function renderSignup() {
+  document.getElementById("signup").innerHTML = `
+    <h2>Sign up / Log in</h2>
+    <h4>Registrer</h4>
+    <input type="text" id="regUser" placeholder="Brukernavn">
+    <input type="password" id="regPass" placeholder="Passord (minst 8 tegn)">
+    <input type="email" id="regEmail" placeholder="Gmail">
+    <input type="file" id="regPic" accept="image/*">
+    <button class="btn" onclick="handleSignup()">Sign up</button>
+    <h4>Logg inn</h4>
+    <input type="text" id="logUser" placeholder="Brukernavn">
+    <input type="password" id="logPass" placeholder="Passord">
+    <button class="btn" onclick="handleLogin()">Logg inn</button>
+  `;
+}
+function handleSignup() {
+  const u = document.getElementById("regUser").value;
+  const p = document.getElementById("regPass").value;
+  const e = document.getElementById("regEmail").value;
+  const file = document.getElementById("regPic").files[0];
+  const reader = new FileReader();
+  reader.onload = function () {
+    registerUser(u, p, e, reader.result);
+  };
+  if (file) reader.readAsDataURL(file);
+  else registerUser(u, p, e, "");
+}
+function handleLogin() {
+  const u = document.getElementById("logUser").value;
+  const p = document.getElementById("logPass").value;
+  loginUser(u, p);
+}
+function renderSettings() {
+  document.getElementById("settings").innerHTML = `
+    <h2>Innstillinger</h2>
+    <button class="btn" onclick="toggleMode()">Bytt mellom dark/light mode</button>
+  `;
+}
+function toggleMode() {
+  document.body.classList.toggle("light");
+  showToast("Modus byttet!");
+}
+function renderPublish() {
+  document.getElementById("publish").innerHTML = `
+    <h2>Del en idé eller bilde</h2>
+    <textarea id="postText" placeholder="Skriv din idé..."></textarea>
+    <input type="file" id="postImage" accept="image/*">
+    <button class="btn" onclick="submitPost()">Publiser</button>
+  `;
+}
+function submitPost() {
+  const text = filterText(document.getElementById("postText").value);
+  const imgInput = document.getElementById("postImage");
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const imgData = imgInput.files.length > 0 ? e.target.result : null;
+    const post = { user: currentUser, text, img: imgData, feedback: [] };
+    posts.push(post);
+    localStorage.setItem("mirror_posts", JSON.stringify(posts));
+    showToast("Postet!");
+    renderForYouScroll();
+  };
+  if (imgInput.files.length > 0) reader.readAsDataURL(imgInput.files[0]);
+  else reader.onload();
+}
+function renderForYouScroll() {
+  if (!posts.length) return document.getElementById("foryou").innerHTML = "<p>Ingen poster ennå.</p>";
+  if (forYouIndex >= posts.length) forYouIndex = 0;
+  const post = posts[forYouIndex];
+  const alreadyRated = post.feedback.some(f => f.user === currentUser);
+  let html = `<div class="post">
+    <p>${post.text}</p>
+    ${post.img ? `<img src="${post.img}" class="uploaded-img" />` : ""}
+    <h4>Hvordan vurderer du dette?</h4>
+    <div>${emojis.map(e => `<span class="emoji-select" onclick="emojiRating(this)">${e}</span>`).join('')}</div>
+    <textarea id="feedbackText" placeholder="Hvordan kan det forbedres?"></textarea>
+    <button class="btn" onclick="submitEmojiFeedback('${post.text}')">Send Feedback</button>
+  </div>
+  <div class="for-you">
+    <button class="btn" onclick="nextForYou()">Neste ⏭️</button>
+  </div>`;
+  document.getElementById("foryou").innerHTML = html;
+}
+function nextForYou() {
+  forYouIndex++;
+  renderForYouScroll();
+}
+function submitEmojiFeedback(postText) {
+  const feedbackText = filterText(document.getElementById("feedbackText").value);
+  const emoji = document.querySelector(".emoji-select.selected");
+  if (!emoji) return showToast("Velg en emoji!");
+  const post = posts.find(p => p.text === postText);
+  if (post.feedback.find(f => f.user === currentUser)) {
+    return showToast("Du har allerede vurdert dette.");
+  }
+  post.feedback.push({ user: currentUser, emoji: emoji.textContent, text: feedbackText });
+  localStorage.setItem("mirror_posts", JSON.stringify(posts));
+  showToast("Feedback sendt!");
+  renderForYouScroll();
+}
+function renderFeedback() {
+  let html = "<h2>Dine tilbakemeldinger</h2>";
+  posts.forEach(post => {
+    post.feedback?.forEach(fb => {
+      if (fb.user === currentUser) {
+        html += `<div class="post">
+          <p><strong>Post:</strong> ${post.text}</p>
+          ${post.img ? `<img src="${post.img}" class="uploaded-img" />` : ""}
+          <p><strong>Du ga:</strong> ${fb.emoji} – ${fb.text}</p>
+        </div>`;
       }
-    }
+    });
+  });
+  document.getElementById("feedback").innerHTML = html || "<p>Ingen feedback gitt ennå.</p>";
+}
+function renderProfile() {
+  const user = users[currentUser];
+  document.getElementById("profile").innerHTML = `
+    <h2>Din Profil</h2>
+    <img class="profile-pic" src="${user.profilePic || ''}">
+    <p><strong>Brukernavn:</strong> ${currentUser}</p>
+    <p><strong>Email:</strong> ${user.gmail}</p>
+  `;
+}
+function renderLiked() {
+  document.getElementById("liked").innerHTML = "<h2>Dine Liker</h2><p>Funksjon kommer snart!</p>";
+}
+function switchSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === "foryou") renderForYouScroll();
+  if (id === "feedback") renderFeedback();
+  if (id === "liked") renderLiked();
+  if (id === "settings") renderSettings();
+  if (id === "profile") renderProfile();
+  if (id === "publish") renderPublish();
+}
+function confirmLogout() {
+  document.getElementById('logoutPopup').style.display = 'block';
+}
+function logout(confirm) {
+  if (confirm) {
+    localStorage.removeItem("mirror_user");
+    location.reload();
+  } else {
+    document.getElementById('logoutPopup').style.display = 'none';
+  }
+}
+function startup() {
+  if (!currentUser) {
+    switchSection('signup');
+    renderSignup();
+  } else {
+    renderSettings();
+    renderPublish();
+    renderForYouScroll();
+    renderProfile();
+  }
+}
+let forYouIndex = 0;
+window.onload = startup;    // Hvis du vil, kan jeg sende hele JavaScript-blokken som én full versjon i neste svar.
   </script>
 </body>
 </html>
-<script>
-  let posts = JSON.parse(localStorage.getItem("mirror_posts")) || [];
-  let users = JSON.parse(localStorage.getItem("mirror_users")) || {};
-  let currentUser = localStorage.getItem("mirror_user") || null;
-  let tempCode = "";
 
-  const bannedWords = ["fuck", "shit", "helvete", "idiot", "hore", "bitch", "dritt"];
-
-  const emojis = ["😡", "😕", "😐", "🙂", "😃"];
-
-  function showToast(msg) {
-    const toast = document.getElementById("toast");
-    toast.innerText = msg;
-    toast.style.display = "block";
-    setTimeout(() => (toast.style.display = "none"), 3000);
-  }
-
-  function filterText(text) {
-    let clean = text;
-    bannedWords.forEach(word => {
-      const regex = new RegExp(word, 'gi');
-      clean = clean.replace(regex, '***');
-    });
-    return clean;
-  }
-
-  function generateCode() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  }
-
-  function registerUser(username, password, gmail, profilePic) {
-    if (password.length < 8) return showToast("Passord må være minst 8 tegn.");
-    if (users[username]) return showToast("Brukernavn er allerede tatt.");
-    tempCode = generateCode();
-    alert("Verifiser Gmail: Skriv inn koden " + tempCode); // kan erstattes med e-posttjeneste
-    const inputCode = prompt("Skriv inn 6-sifret kode:");
-    if (inputCode !== tempCode) return showToast("Feil kode!");
-
-    users[username] = { password, gmail, profilePic };
-    localStorage.setItem("mirror_users", JSON.stringify(users));
-    localStorage.setItem("mirror_user", username);
-    showToast("Registrert!");
-    location.reload();
-  }
-
-  function loginUser(username, password) {
-    if (!users[username]) return showToast("Brukernavnet finnes ikke.");
-    if (users[username].password !== password) return showToast("Feil passord.");
-    localStorage.setItem("mirror_user", username);
-    showToast("Logget inn!");
-    location.reload();
-  }
-
-  function emojiRating(selectedEmoji) {
-    document.querySelectorAll(".emoji-select").forEach(e => e.classList.remove("selected"));
-    selectedEmoji.classList.add("selected");
-  }
-
-  function renderSignup() {
-    document.getElementById("signup").innerHTML = `
-      <h2>Sign up / Log in</h2>
-      <h4>Registrer</h4>
-      <input type="text" id="regUser" placeholder="Brukernavn">
-      <input type="password" id="regPass" placeholder="Passord (minst 8 tegn)">
-      <input type="email" id="regEmail" placeholder="Gmail">
-      <input type="file" id="regPic" accept="image/*">
-      <button class="btn" onclick="handleSignup()">Sign up</button>
-
-      <h4>Logg inn</h4>
-      <input type="text" id="logUser" placeholder="Brukernavn">
-      <input type="password" id="logPass" placeholder="Passord">
-      <button class="btn" onclick="handleLogin()">Logg inn</button>
-    `;
-  }
-
-  function handleSignup() {
-    const u = document.getElementById("regUser").value;
-    const p = document.getElementById("regPass").value;
-    const e = document.getElementById("regEmail").value;
-    const file = document.getElementById("regPic").files[0];
-    const reader = new FileReader();
-    reader.onload = function () {
-      registerUser(u, p, e, reader.result);
-    };
-    if (file) reader.readAsDataURL(file);
-    else registerUser(u, p, e, "");
-  }
-
-  function handleLogin() {
-    const u = document.getElementById("logUser").value;
-    const p = document.getElementById("logPass").value;
-    loginUser(u, p);
-  }
-
-  function renderSettings() {
-    document.getElementById("settings").innerHTML = `
-      <h2>Innstillinger</h2>
-      <button class="btn" onclick="toggleMode()">Bytt mellom dark/light mode</button>
-    `;
-  }
-
-  function toggleMode() {
-    document.body.classList.toggle("light");
-    showToast("Modus byttet!");
-  }
-
-  function renderPublish() {
-    document.getElementById("publish").innerHTML = `
-      <h2>Del en idé eller bilde</h2>
-      <textarea id="postText" placeholder="Skriv din idé..."></textarea>
-      <input type="file" id="postImage" accept="image/*">
-      <button class="btn" onclick="submitPost()">Publiser</button>
-    `;
-  }
-
-  function submitPost() {
-    const text = filterText(document.getElementById("postText").value);
-    const imgInput = document.getElementById("postImage");
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const imgData = imgInput.files.length > 0 ? e.target.result : null;
-      const post = { user: currentUser, text, img: imgData, feedback: [] };
-      posts.push(post);
-      localStorage.setItem("mirror_posts", JSON.stringify(posts));
-      showToast("Postet!");
-      renderForYou();
-    };
-    if (imgInput.files.length > 0) reader.readAsDataURL(imgInput.files[0]);
-    else reader.onload();
-  }
-
-  function renderForYou() {
-    if (!posts.length) return document.getElementById("foryou").innerHTML = "<p>Ingen poster ennå.</p>";
-    const current = posts[Math.floor(Math.random() * posts.length)];
-    const feedbackGiven = current.feedback.find(f => f.user === currentUser);
-    let html = `<div class="post">
-      <p>${current.text}</p>
-      ${current.img ? `<img src="${current.img}" class="uploaded-img">` : ""}
-      <h4>Hvordan vurderer du dette?</h4>
-      <div>${emojis.map(e => `<span class="emoji-select" onclick="emojiRating(this)">${e}</span>`).join('')}</div>
-      <textarea id="feedbackText" placeholder="Hvordan kan det forbedres?"></textarea>
-      <button class="btn" onclick="submitEmojiFeedback('${current.text}')">Send Feedback</button>
-    </div>`;
-    document.getElementById("foryou").innerHTML = html;
-  }
-
-  function submitEmojiFeedback(postText) {
-    const feedbackText = filterText(document.getElementById("feedbackText").value);
-    const emoji = document.querySelector(".emoji-select.selected");
-    if (!emoji) return showToast("Velg en emoji!");
-    const post = posts.find(p => p.text === postText);
-    if (post.feedback.find(f => f.user === currentUser)) {
-      return showToast("Du har allerede vurdert dette.");
-    }
-    post.feedback.push({ user: currentUser, emoji: emoji.textContent, text: feedbackText });
-    localStorage.setItem("mirror_posts", JSON.stringify(posts));
-    showToast("Feedback sendt!");
-    renderForYou();
-  }
-
-  function renderProfile() {
-    const user = users[currentUser];
-    document.getElementById("profile").innerHTML = `
-      <h2>Din Profil</h2>
-      <img class="profile-pic" src="${user.profilePic || ''}">
-      <p><strong>Brukernavn:</strong> ${currentUser}</p>
-      <p><strong>Email:</strong> ${user.gmail}</p>
-    `;
-  }
-
-  function startup() {
-    if (!currentUser) {
-      switchSection('signup');
-      renderSignup();
-    } else {
-      renderSettings();
-      renderPublish();
-      renderForYou();
-      renderProfile();
-    }
-  }
-
-  window.onload = startup;
-</script>
-  // === Your Feedback-seksjon ===
-  function renderFeedback() {
-    let html = "<h2>Dine tilbakemeldinger</h2>";
-    posts.forEach(post => {
-      post.feedback?.forEach(fb => {
-        if (fb.user === currentUser) {
-          html += `
-            <div class="post">
-              <p><strong>Post:</strong> ${post.text}</p>
-              ${post.img ? `<img src="${post.img}" class="uploaded-img" />` : ""}
-              <p><strong>Du ga:</strong> ${fb.emoji} – ${fb.text}</p>
-            </div>
-          `;
-        }
-      });
-    });
-    document.getElementById("feedback").innerHTML = html || "<p>Ingen feedback gitt ennå.</p>";
-  }
-
-  // === For You Page Scroll-funksjon ===
-  let forYouIndex = 0;
-  function renderForYouScroll() {
-    if (!posts.length) return document.getElementById("foryou").innerHTML = "<p>Ingen poster ennå.</p>";
-    if (forYouIndex >= posts.length) forYouIndex = 0;
-    const post = posts[forYouIndex];
-    const alreadyRated = post.feedback.some(f => f.user === currentUser);
-    let html = `<div class="post">
-      <p>${post.text}</p>
-      ${post.img ? `<img src="${post.img}" class="uploaded-img" />` : ""}
-      <h4>Hvordan vurderer du dette?</h4>
-      <div>${emojis.map(e => `<span class="emoji-select" onclick="emojiRating(this)">${e}</span>`).join('')}</div>
-      <textarea id="feedbackText" placeholder="Hvordan kan det forbedres?"></textarea>
-      <button class="btn" onclick="submitEmojiFeedback('${post.text}')">Send Feedback</button>
-    </div>
-    <div class="for-you">
-      <button class="btn" onclick="nextForYou()">Neste ⏭️</button>
-    </div>`;
-    document.getElementById("foryou").innerHTML = html;
-  }
-
-  function nextForYou() {
-    forYouIndex++;
-    renderForYouScroll();
-  }
-
-  // === Your Liked (placeholder for framtidig funksjon) ===
-  function renderLiked() {
-    document.getElementById("liked").innerHTML = "<h2>Dine Liker</h2><p>Funksjon kommer snart!</p>";
-  }
-
-  // === Navigering – oppdatert ===
-  function switchSection(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-
-    if (id === "foryou") renderForYouScroll();
-    if (id === "feedback") renderFeedback();
-    if (id === "liked") renderLiked();
-    if (id === "settings") renderSettings();
-    if (id === "profile") renderProfile();
-    if (id === "publish") renderPublish();
-  }
+  </script>
+</body>
+</html>
