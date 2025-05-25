@@ -1,42 +1,69 @@
-<script>
-  const canvas = document.getElementById("gameCanvas");
-  const ctx = canvas.getContext("2d");
-  canvas.setAttribute("tabindex", "0");
-  canvas.focus();
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>TurboTales Drift</title>
+  <style>
+    body { margin: 0; background: #111; overflow: hidden; }
+    canvas { display: block; margin: auto; background: #333; outline: none; }
+    #ui {
+      position: absolute;
+      top: 10px; left: 10px;
+      color: white;
+      font-family: sans-serif;
+      font-size: 18px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
 
-  let x = 400, y = 300, angle = 0;
-  let speed = 0, score = 0;
-  const keys = {};
+  <canvas id="gameCanvas" width="800" height="600" tabindex="0"></canvas>
+  <div id="ui">🚗 TurboTales Drift — Score: <span id="score">0</span></div>
 
-  canvas.addEventListener("keydown", e => keys[e.key] = true);
-  canvas.addEventListener("keyup", e => keys[e.key] = false);
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
-  function gameLoop() {
-    ctx.fillStyle = "#222";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    let x = 400, y = 300, angle = 0;
+    let speed = 0, score = 0;
+    const keys = {};
 
-    if (keys["ArrowUp"]) speed += 0.2;
-    if (keys["ArrowDown"]) speed -= 0.2;
-    if (keys["ArrowLeft"]) angle -= 0.05;
-    if (keys["ArrowRight"]) angle += 0.05;
+    canvas.focus(); // canvas får tastaturkontroll
 
-    speed *= 0.95;
-    x += Math.cos(angle) * speed;
-    y += Math.sin(angle) * speed;
+    canvas.addEventListener("keydown", e => keys[e.key] = true);
+    canvas.addEventListener("keyup", e => keys[e.key] = false);
 
-    score += Math.abs(speed * 0.1);
-    document.getElementById("score").textContent = Math.floor(score);
+    function gameLoop() {
+      ctx.fillStyle = "#222";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(angle);
-    ctx.fillStyle = "#0ff";
-    ctx.fillRect(-20, -10, 40, 20);
-    ctx.restore();
+      if (keys["ArrowUp"]) speed += 0.2;
+      if (keys["ArrowDown"]) speed -= 0.2;
+      if (keys["ArrowLeft"]) angle -= 0.05;
+      if (keys["ArrowRight"]) angle += 0.05;
 
-    requestAnimationFrame(gameLoop);
-  }
+      speed *= 0.95;
+      x += Math.cos(angle) * speed;
+      y += Math.sin(angle) * speed;
 
-  canvas.focus(); // dette gjør at det fungerer uten å måtte klikke
-  gameLoop();
-</script>
+      // score logikk
+      score += Math.abs(speed * 0.1);
+      document.getElementById("score").textContent = Math.floor(score);
+
+      // tegn bilen
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.fillStyle = "#00ffff";
+      ctx.fillRect(-20, -10, 40, 20);
+      ctx.restore();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+
+</body>
+</html>
