@@ -6,21 +6,39 @@
   <style>
     body {
       margin: 0;
+      display: flex;
       background: #0a0a0a;
       color: white;
       font-family: sans-serif;
-      text-align: center;
     }
-    header {
-      padding: 20px;
+    aside {
+      width: 200px;
       background: #111;
-      box-shadow: 0 0 10px #000;
+      padding: 20px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
     }
-    h1 {
-      margin: 0;
-      font-size: 28px;
+    aside h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
     }
-    .container {
+    aside button {
+      display: block;
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .main {
+      margin-left: 220px;
+      width: calc(100% - 220px);
       padding: 20px;
     }
     textarea, input[type="file"], input[type="text"], input[type="password"], input[type="email"], input[type="search"] {
@@ -33,7 +51,7 @@
       font-size: 16px;
       margin-top: 10px;
     }
-    button {
+    button.action {
       margin-top: 10px;
       padding: 10px 24px;
       font-size: 16px;
@@ -43,36 +61,14 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .feedback-box, .history-box, .auth-box, .profile-box {
-      margin-top: 30px;
+    .box {
       background: #1a1a1a;
       padding: 20px;
       border-radius: 10px;
-    }
-    input[type=number] {
-      width: 60px;
-      padding: 6px;
-      font-size: 16px;
-      border: 1px solid #555;
-      border-radius: 5px;
-      background: #222;
-      color: white;
-    }
-    footer {
-      margin-top: 40px;
-    }
-    .socials img {
-      width: 40px;
-      margin: 10px;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-    .socials img:hover {
-      transform: scale(1.1);
+      margin-top: 20px;
     }
     img.uploaded-img {
       max-width: 300px;
-      margin-top: 10px;
       border-radius: 8px;
     }
     #toast {
@@ -85,70 +81,59 @@
       padding: 10px 20px;
       border-radius: 8px;
       display: none;
+      z-index: 1000;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🪞 Mirror – Ærlig og anonym feedback</h1>
-    <div id="userInfo"></div>
-    <button onclick="logout()">Logg ut</button>
-  </header>
-
-  <div id="authSection" class="container">
-    <div class="auth-box">
+  <aside>
+    <h2>Mirror Menu</h2>
+    <button onclick="navigate('publish')">Publish</button>
+    <button onclick="navigate('feedback')">Your Feedback</button>
+    <button onclick="navigate('liked')">Your Liked</button>
+    <button onclick="navigate('settings')">Settings</button>
+    <button onclick="logout()">Log out</button>
+  </aside>
+  <div class="main">
+    <div id="toast"></div>
+    <div id="authSection">
       <h2>Registrer deg</h2>
       <input type="text" id="regUser" placeholder="Brukernavn">
       <input type="password" id="regPass" placeholder="Passord">
       <input type="email" id="regEmail" placeholder="Gmail">
-      <button onclick="register()">Sign up</button>
+      <button class="action" onclick="register()">Sign up</button>
       <h3>Eller logg inn</h3>
       <input type="text" id="logUser" placeholder="Brukernavn">
       <input type="password" id="logPass" placeholder="Passord">
-      <button onclick="login()">Log in</button>
+      <button class="action" onclick="login()">Log in</button>
     </div>
-  </div>
 
-  <div id="mainApp" class="container" style="display:none;">
-    <h2>1. Del en idé, bilde eller tekst</h2>
-    <textarea id="postText" placeholder="Skriv din idé..."></textarea>
-    <br>
-    <input type="file" id="postImage" accept="image/*">
-    <br>
-    <button onclick="submitPost()">Post</button>
+    <div id="publishSection" style="display:none;">
+      <h2>Del idé eller bilde</h2>
+      <textarea id="postText" placeholder="Skriv din idé..."></textarea>
+      <input type="file" id="postImage" accept="image/*">
+      <button class="action" onclick="submitPost()">Post</button>
+    </div>
 
-    <div class="feedback-box">
-      <h2>2. Gi ærlig feedback</h2>
+    <div id="feedbackSection" class="box" style="display:none;">
+      <h2>Gi ærlig feedback</h2>
       <input type="search" id="searchBox" placeholder="Søk i poster..." oninput="searchPosts()">
       <div id="randomPost"></div>
-      <label for="score">Score (1–10):</label>
-      <input type="number" id="score" min="1" max="10" value="5" />
-      <br><br>
+      <label>Score (1–10):</label>
+      <input type="number" id="score" min="1" max="10" value="5">
       <textarea id="feedbackText" placeholder="Hvordan kan det bli bedre?"></textarea>
-      <br>
-      <button onclick="submitFeedback()">Send feedback</button>
+      <button class="action" onclick="submitFeedback()">Send feedback</button>
     </div>
 
-    <div class="profile-box">
-      <h2>Your Profile</h2>
-      <button onclick="renderPostHistory()">Se dine poster og feedback</button>
-      <div id="postHistory"></div>
+    <div id="likedSection" class="box" style="display:none;">
+      <h2>Dine likes (kommer snart)</h2>
+    </div>
+
+    <div id="settingsSection" class="box" style="display:none;">
+      <h2>Settings</h2>
+      <p>Flere innstillinger kommer!</p>
     </div>
   </div>
-
-  <footer>
-    <h3>Support our socials</h3>
-    <div class="socials">
-      <a href="https://www.youtube.com/@TurboTalesnrwy" target="_blank">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube" />
-      </a>
-      <a href="https://www.tiktok.com/@turbotales02" target="_blank">
-        <img src="https://upload.wikimedia.org/wikipedia/en/0/0a/TikTok_logo.svg" alt="TikTok" />
-      </a>
-    </div>
-  </footer>
-
-  <div id="toast"></div>
 
   <script>
     let posts = JSON.parse(localStorage.getItem("mirror_posts")) || [];
@@ -171,15 +156,11 @@
       return clean;
     }
 
-    function updateUserInfo() {
-      document.getElementById("userInfo").innerText = currentUser ? `Logget inn som ${currentUser}` : "";
-    }
-
     function register() {
       const u = document.getElementById("regUser").value;
       const p = document.getElementById("regPass").value;
       const e = document.getElementById("regEmail").value;
-      if (!u || !p || !e) return showToast("Fyll inn alle felt!");
+      if (!u || !p || !e) return showToast("Fyll inn alt!");
       localStorage.setItem("user_" + u, JSON.stringify({ pass: p, email: e }));
       localStorage.setItem("mirror_user", u);
       location.reload();
@@ -189,7 +170,7 @@
       const u = document.getElementById("logUser").value;
       const p = document.getElementById("logPass").value;
       const data = JSON.parse(localStorage.getItem("user_" + u));
-      if (!data || data.pass !== p) return showToast("Feil brukernavn/passord");
+      if (!data || data.pass !== p) return showToast("Feil info!");
       localStorage.setItem("mirror_user", u);
       location.reload();
     }
@@ -197,6 +178,13 @@
     function logout() {
       localStorage.removeItem("mirror_user");
       location.reload();
+    }
+
+    function navigate(section) {
+      ["publish", "feedback", "liked", "settings"].forEach(id => {
+        document.getElementById(id + "Section").style.display = "none";
+      });
+      document.getElementById(section + "Section").style.display = "block";
     }
 
     function submitPost() {
@@ -209,9 +197,8 @@
         const post = { user: currentUser, text, img: imgData, feedback: [] };
         posts.push(post);
         localStorage.setItem("mirror_posts", JSON.stringify(posts));
-        showToast("Innlegg postet!");
+        showToast("Postet!");
         getRandomPost();
-        renderPostHistory();
       };
 
       if (imgInput.files.length > 0) {
@@ -226,9 +213,7 @@
       const idx = Math.floor(Math.random() * filtered.length);
       const post = filtered[idx];
       let html = `<blockquote>"${post.text}"</blockquote>`;
-      if (post.img) {
-        html += `<img src="${post.img}" class="uploaded-img" />`;
-      }
+      if (post.img) html += `<img src="${post.img}" class="uploaded-img" />`;
       html += `<input type='hidden' id='currentPostIndex' value='${posts.indexOf(post)}'>`;
       document.getElementById("randomPost").innerHTML = html;
     }
@@ -244,45 +229,18 @@
       const score = document.getElementById("score").value;
       const text = filterText(document.getElementById("feedbackText").value);
       if (!posts[index].feedback) posts[index].feedback = [];
+      const alreadyRated = posts[index].feedback.find(f => f.user === currentUser);
+      if (alreadyRated) return showToast("Du har allerede vurdert denne posten!");
       posts[index].feedback.push({ user: currentUser, score, text });
       localStorage.setItem("mirror_posts", JSON.stringify(posts));
       showToast("Feedback sendt!");
       getRandomPost();
     }
 
-    function renderPostHistory() {
-      let html = "";
-      posts.forEach(post => {
-        if (post.user === currentUser) {
-          html += `<div style='margin-bottom:20px;'>
-            <strong>${post.text}</strong><br>`;
-          if (post.img) {
-            html += `<img src='${post.img}' class='uploaded-img'><br>`;
-          }
-          if (post.feedback && post.feedback.length > 0) {
-            html += `<em>Feedback mottatt:</em><ul>`;
-            post.feedback.forEach(f => {
-              html += `<li>${f.score}/10 – ${f.text}</li>`;
-            });
-            html += `</ul>`;
-          }
-          html += `</div>`;
-        }
-        post.feedback?.forEach(fb => {
-          if (fb.user === currentUser) {
-            html += `<div><em>Du ga feedback på:</em><br>"${post.text}"<br><strong>${fb.score}/10</strong> – ${fb.text}</div><hr>`;
-          }
-        });
-      });
-      document.getElementById("postHistory").innerHTML = html;
-    }
-
     if (currentUser) {
       document.getElementById("authSection").style.display = "none";
-      document.getElementById("mainApp").style.display = "block";
-      updateUserInfo();
+      navigate("publish");
       getRandomPost();
-      renderPostHistory();
     }
   </script>
 </body>
