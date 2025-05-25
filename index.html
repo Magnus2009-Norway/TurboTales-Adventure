@@ -2,142 +2,99 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>TurboTales Boss Fight</title>
+  <title>TurboTales 3D Racing (Demo)</title>
   <style>
     body {
       margin: 0;
-      background: #111;
       font-family: sans-serif;
-      overflow: hidden;
+      background: #111;
       color: white;
       text-align: center;
     }
-    canvas {
-      display: block;
-      margin: auto;
-      background: #000;
-    }
-    #menu, #game {
-      display: none;
-    }
-    .btn {
-      background: #444;
-      color: white;
+    h1 { margin-top: 20px; }
+    .menu, .race-ui { display: none; }
+    .menu.active, .race-ui.active { display: block; }
+    button {
       padding: 12px 24px;
       margin: 10px;
       font-size: 20px;
-      border: none;
       border-radius: 10px;
+      border: none;
       cursor: pointer;
     }
-    #scoreDisplay {
-      position: absolute;
-      top: 10px;
-      left: 10px;
+    select {
+      padding: 10px;
       font-size: 18px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <div id="menu">
-    <h1>🚀 TurboTales Boss Fight</h1>
-    <button class="btn" onclick="startGame()">Play</button>
-    <button class="btn" onclick="alert('Multiplayer is coming soon!')">Multiplayer</button>
-    <button class="btn" onclick="alert('Settings will be added later.')">Settings</button>
+
+  <div id="mainMenu" class="menu active">
+    <h1>🏁 TurboTales 3D Racing</h1>
+
+    <h2>Velg Bil</h2>
+    <select id="carSelect">
+      <option value="basic">Basic Racer</option>
+      <option value="fast">Speedster</option>
+      <option value="turbo">TurboTales EX (SUB Only)</option>
+    </select>
+
+    <h2>Velg Bane</h2>
+    <select id="trackSelect">
+      <option value="forest">🌲 Forest Loop</option>
+      <option value="city">🌆 City Rush</option>
+      <option value="mountain">⛰️ Mountain Pass</option>
+      <option value="desert">🏜️ Desert Drift</option>
+      <option value="ice">❄️ Ice Arena</option>
+      <option value="stadium">🏟️ Turbo Stadium</option>
+    </select>
+
+    <br><br>
+    <button onclick="startRace()">Start Race</button>
+    <br>
+    <button onclick="unlockSubCar()">🎁 Jeg har abonnert!</button>
+    <p id="subMsg" style="color: lime;"></p>
   </div>
 
-  <div id="game">
-    <div id="scoreDisplay">Score: <span id="score">0</span></div>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <div id="raceUI" class="race-ui">
+    <h2>🚘 Race in progress...</h2>
+    <p>Bilen: <span id="selectedCarText"></span> | Bane: <span id="selectedTrackText"></span></p>
+    <p>(Spillmotor og 3D kommer i neste steg 😉)</p>
+    <button onclick="goBack()">Tilbake til meny</button>
   </div>
 
   <script>
-    const menu = document.getElementById("menu");
-    const game = document.getElementById("game");
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const scoreText = document.getElementById("score");
+    let subUnlocked = false;
 
-    let player = { x: 400, y: 300, size: 20 };
-    let bullets = [];
-    let enemies = [];
-    let score = 0;
-    const keys = {};
-
-    document.addEventListener("keydown", e => keys[e.key] = true);
-    document.addEventListener("keyup", e => keys[e.key] = false);
-
-    function startGame() {
-      menu.style.display = "none";
-      game.style.display = "block";
-      gameLoop();
-      spawnEnemies();
+    function unlockSubCar() {
+      subUnlocked = true;
+      const carSelect = document.getElementById("carSelect");
+      carSelect.innerHTML += `<option value="turbo">TurboTales EX (Unlocked)</option>`;
+      document.getElementById("subMsg").textContent = "✅ TurboTales EX låst opp!";
     }
 
-    function drawPlayer() {
-      ctx.fillStyle = "#00f";
-      ctx.fillRect(player.x - player.size/2, player.y - player.size/2, player.size, player.size);
-    }
+    function startRace() {
+      const selectedCar = document.getElementById("carSelect").value;
+      const selectedTrack = document.getElementById("trackSelect").value;
 
-    function movePlayer() {
-      if (keys["ArrowLeft"] || keys["a"]) player.x -= 5;
-      if (keys["ArrowRight"] || keys["d"]) player.x += 5;
-      if (keys["ArrowUp"] || keys["w"]) player.y -= 5;
-      if (keys["ArrowDown"] || keys["s"]) player.y += 5;
-    }
-
-    document.addEventListener("keydown", e => {
-      if (e.code === "Space") {
-        bullets.push({ x: player.x, y: player.y, r: 5 });
+      if (selectedCar === "turbo" && !subUnlocked) {
+        alert("Denne bilen krever at du abonnerer på YouTube!");
+        return;
       }
-    });
 
-    function drawBullets() {
-      ctx.fillStyle = "#0f0";
-      bullets.forEach((b, i) => {
-        b.y -= 10;
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-        ctx.fill();
-        if (b.y < 0) bullets.splice(i, 1);
-      });
+      document.getElementById("mainMenu").classList.remove("active");
+      document.getElementById("raceUI").classList.add("active");
+      document.getElementById("selectedCarText").textContent = selectedCar;
+      document.getElementById("selectedTrackText").textContent = selectedTrack;
     }
 
-    function drawEnemies() {
-      ctx.fillStyle = "red";
-      enemies.forEach((e, ei) => {
-        e.y += 2;
-        ctx.fillRect(e.x, e.y, 20, 20);
-
-        bullets.forEach((b, bi) => {
-          if (b.x > e.x && b.x < e.x + 20 && b.y > e.y && b.y < e.y + 20) {
-            enemies.splice(ei, 1);
-            bullets.splice(bi, 1);
-            score++;
-            scoreText.textContent = score;
-          }
-        });
-
-        if (e.y > canvas.height) enemies.splice(ei, 1);
-      });
+    function goBack() {
+      document.getElementById("raceUI").classList.remove("active");
+      document.getElementById("mainMenu").classList.add("active");
     }
-
-    function spawnEnemies() {
-      setInterval(() => {
-        enemies.push({ x: Math.random() * (canvas.width - 20), y: -20 });
-      }, 1000);
-    }
-
-    function gameLoop() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      movePlayer();
-      drawPlayer();
-      drawBullets();
-      drawEnemies();
-      requestAnimationFrame(gameLoop);
-    }
-
-    menu.style.display = "block";
   </script>
+
 </body>
 </html>
