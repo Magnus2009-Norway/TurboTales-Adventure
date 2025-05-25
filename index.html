@@ -12,7 +12,7 @@
       text-align: center;
     }
     h1 { margin-top: 20px; }
-    .menu { display: none; }
+    .menu, #gameCanvas { display: none; }
     .active { display: block; }
     .btn {
       padding: 14px 30px;
@@ -24,11 +24,9 @@
       cursor: pointer;
     }
     .section { margin-top: 30px; }
-    img {
-      width: 100px;
-      height: auto;
+    img.social {
+      width: 50px;
       margin: 10px;
-      border-radius: 12px;
     }
     .grid {
       display: flex;
@@ -51,6 +49,17 @@
       margin-top: 8px;
       font-size: 14px;
     }
+    #message {
+      margin-top: 10px;
+      color: lime;
+      font-weight: bold;
+    }
+    canvas {
+      background: #222;
+      display: block;
+      margin: auto;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -59,27 +68,29 @@
     <h1>🏁 TurboTales 3D Racing</h1>
     <button class="btn" onclick="showMenu('cars')">🚗 Cars</button>
     <button class="btn" onclick="showMenu('tracks')">🛣️ Tracks</button>
-    <button class="btn" onclick="alert('Multiplayer starter race med bots hvis alene!')">Play</button>
+    <button class="btn" onclick="startGame()">Play</button>
+
     <div class="section">
       <h3>Support our socials</h3>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube" />
-      <img src="https://upload.wikimedia.org/wikipedia/en/0/0a/TikTok_logo.svg" alt="TikTok" />
+      <img src="turbotalesyt.png" alt="YouTube" class="social" />
+      <img src="turbotalestt.png" alt="TikTok" class="social" />
     </div>
+    <div id="message"></div>
   </div>
 
   <div id="carsMenu" class="menu">
     <h2>Velg en bil du eier:</h2>
     <div class="grid">
       <div class="card">
-        <img src="https://i.imgur.com/QrKRVqz.png" alt="Basic Car" />
+        <img src="basic_car.png" alt="Basic Car" />
         <p>Basic Racer<br>🚀 Speed: ★★☆☆☆</p>
       </div>
       <div class="card">
-        <img src="https://i.imgur.com/t8n4Kov.png" alt="Speedster" />
+        <img src="speedster_car.png" alt="Speedster" />
         <p>Speedster<br>🚀 Speed: ★★★★☆</p>
       </div>
       <div class="card">
-        <img src="https://i.imgur.com/l9ZdxIC.png" alt="TurboTales EX" />
+        <img src="turbo_car.png" alt="TurboTales EX" />
         <p>TurboTales EX<br>💎 Kun for abonnenter</p>
       </div>
     </div>
@@ -90,39 +101,88 @@
     <h2>Velg en bane:</h2>
     <div class="grid">
       <div class="card">
-        <img src="https://i.imgur.com/4TkQ4VH.jpeg" alt="Forest Loop" />
+        <img src="track_forest.png" alt="Forest Loop" />
         <p>🌲 Forest Loop</p>
       </div>
       <div class="card">
-        <img src="https://i.imgur.com/hOT6qBq.jpeg" alt="City Rush" />
+        <img src="track_city.png" alt="City Rush" />
         <p>🌆 City Rush</p>
       </div>
       <div class="card">
-        <img src="https://i.imgur.com/cx2vEbz.jpeg" alt="Mountain Pass" />
+        <img src="track_mountain.png" alt="Mountain Pass" />
         <p>⛰️ Mountain Pass</p>
       </div>
       <div class="card">
-        <img src="https://i.imgur.com/okRAcyV.jpeg" alt="Desert Drift" />
+        <img src="track_desert.png" alt="Desert Drift" />
         <p>🏜️ Desert Drift</p>
       </div>
       <div class="card">
-        <img src="https://i.imgur.com/vpTvY0G.jpeg" alt="Ice Arena" />
+        <img src="track_ice.png" alt="Ice Arena" />
         <p>❄️ Ice Arena</p>
       </div>
       <div class="card">
-        <img src="https://i.imgur.com/ZQZ7DUp.jpeg" alt="Turbo Stadium" />
+        <img src="track_stadium.png" alt="Turbo Stadium" />
         <p>🏟️ Turbo Stadium</p>
       </div>
     </div>
     <button class="btn" onclick="showMenu('main')">Tilbake</button>
   </div>
 
+  <canvas id="gameCanvas" width="800" height="400"></canvas>
+
   <script>
-    function showMenu(name) {
-      document.querySelectorAll('.menu').forEach(menu => menu.classList.remove('active'));
-      if (name === 'main') document.getElementById('mainMenu').classList.add('active');
-      if (name === 'cars') document.getElementById('carsMenu').classList.add('active');
-      if (name === 'tracks') document.getElementById('tracksMenu').classList.add('active');
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    let gameRunning = false;
+    let player = { x: 100, y: 200, color: "cyan", speed: 2 };
+    let bots = [];
+    let score = 0;
+
+    function showMenu(menu) {
+      document.querySelectorAll('.menu').forEach(m => m.classList.remove('active'));
+      document.getElementById(menu + 'Menu').classList.add('active');
+    }
+
+    function startGame() {
+      document.querySelectorAll('.menu').forEach(m => m.classList.remove('active'));
+      canvas.style.display = 'block';
+      initGame();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function initGame() {
+      gameRunning = true;
+      bots = [];
+      for (let i = 0; i < 9; i++) {
+        bots.push({ x: 100, y: 40 * i + 20, color: "red", speed: 1.5 + Math.random() });
+      }
+      score = 0;
+    }
+
+    function drawCar(car) {
+      ctx.fillStyle = car.color;
+      ctx.fillRect(car.x, car.y, 40, 20);
+    }
+
+    function updateGame() {
+      player.x += player.speed;
+      bots.forEach(bot => bot.x += bot.speed);
+      score++;
+    }
+
+    function drawGame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCar(player);
+      bots.forEach(drawCar);
+      ctx.fillStyle = "white";
+      ctx.fillText("Poeng: " + score, 10, 20);
+    }
+
+    function gameLoop() {
+      if (!gameRunning) return;
+      updateGame();
+      drawGame();
+      requestAnimationFrame(gameLoop);
     }
   </script>
 
