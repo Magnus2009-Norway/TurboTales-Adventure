@@ -1,92 +1,113 @@
-// TurboTales Adventure - Canvas Platformer Game
-import React, { useEffect, useRef } from "react";
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <title>TurboTales Super Clicker</title>
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 18px;
+      margin: 10px;
+    }
+    .green { background: #22c55e; }
+    .blue { background: #3b82f6; }
+    .yellow { background: #eab308; }
+    .purple { background: #a855f7; }
+    .menu { display: none; margin-top: 20px; }
+    .menu.active { display: block; }
+    img { width: 40px; height: 40px; margin: 5px; }
+  </style>
+</head>
+<body>
 
-export default function TurboTalesAdventure() {
-  const canvasRef = useRef(null);
-  const player = useRef({ x: 100, y: 250, vx: 0, vy: 0 });
-  const keys = useRef({});
-  const gravity = 0.6;
-  const groundLevel = 360;
+  <h1>🚀 TurboTales Super Clicker</h1>
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    let ytImage = new Image();
-    let ttImage = new Image();
-    ytImage.src = "/yt.png";
-    ttImage.src = "/tiktok.png";
+  <div>
+    <button class="btn blue" onclick="showMenu('game')">Game</button>
+    <button class="btn blue" onclick="showMenu('shop')">Shop</button>
+    <button class="btn blue" onclick="showMenu('settings')">Settings</button>
+  </div>
 
-    const handleKeyDown = (e) => (keys.current[e.key] = true);
-    const handleKeyUp = (e) => (keys.current[e.key] = false);
+  <div id="game" class="menu active">
+    <h2>Score: <span id="score">0</span></h2>
+    <h3>Multiplier: <span id="mult">1</span>x</h3>
+    <button class="btn green" onclick="clickMe()">CLICK ME!</button>
+  </div>
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
+  <div id="shop" class="menu">
+    <h2>🛒 Shop</h2>
+    <p>Oppgrader +1 Multiplier</p>
+    <p>Pris: <span id="price">50</span> poeng</p>
+    <button class="btn yellow" onclick="buyUpgrade()">Kjøp oppgradering</button>
+  </div>
 
-    const draw = () => {
-      ctx.fillStyle = "#1a1a1a";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Draw ground
-      ctx.fillStyle = "#444";
-      ctx.fillRect(0, groundLevel, canvas.width, 40);
-
-      // Draw player
-      ctx.fillStyle = "#00bfff";
-      ctx.fillRect(player.current.x, player.current.y, 40, 40);
-
-      // Draw branding
-      ctx.drawImage(ytImage, 20, 20, 40, 40);
-      ctx.fillStyle = "white";
-      ctx.font = "16px Arial";
-      ctx.fillText("@TurboTalesnrwy", 70, 45);
-
-      ctx.drawImage(ttImage, 20, 70, 40, 40);
-      ctx.fillText("@turbotales02", 70, 95);
-    };
-
-    const update = () => {
-      const p = player.current;
-
-      // Left and right
-      if (keys.current["ArrowLeft"]) p.vx = -4;
-      else if (keys.current["ArrowRight"]) p.vx = 4;
-      else p.vx = 0;
-
-      // Jump
-      if ((keys.current[" "] || keys.current["ArrowUp"]) && p.y >= groundLevel - 40) {
-        p.vy = -12;
-      }
-
-      // Gravity
-      p.vy += gravity;
-      p.x += p.vx;
-      p.y += p.vy;
-
-      // Ground collision
-      if (p.y > groundLevel - 40) {
-        p.y = groundLevel - 40;
-        p.vy = 0;
-      }
-    };
-
-    const gameLoop = () => {
-      update();
-      draw();
-      requestAnimationFrame(gameLoop);
-    };
-
-    gameLoop();
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, []);
-
-  return (
-    <div className="bg-black min-h-screen flex flex-col items-center justify-center text-white">
-      <h1 className="text-4xl font-bold mb-4">TurboTales Adventure 🎮</h1>
-      <canvas ref={canvasRef} width={800} height={400} className="border-4 border-white" />
-      <p className="mt-4">Bruk piltaster og spacebar for å styre karakteren din!</p>
+  <div id="settings" class="menu">
+    <h2>⚙️ Innstillinger</h2>
+    <p>Abonner på YouTube og TikTok for bonus!</p>
+    <div>
+      <a href="https://www.youtube.com/@TurboTalesnrwy" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube">
+      </a>
+      <a href="https://www.tiktok.com/@turbotales02" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/en/0/0a/TikTok_logo.svg" alt="TikTok">
+      </a>
     </div>
-  );
-}
+    <button class="btn purple" onclick="claimBonus()">Jeg har abonnert!</button>
+    <p id="bonusMsg" style="color:lime;font-weight:bold;"></p>
+  </div>
+
+  <script>
+    let score = 0;
+    let mult = 1;
+    let bonusClaimed = false;
+
+    function updateDisplay() {
+      document.getElementById('score').textContent = score;
+      document.getElementById('mult').textContent = mult;
+      document.getElementById('price').textContent = 50 * mult;
+    }
+
+    function clickMe() {
+      score += mult;
+      updateDisplay();
+    }
+
+    function buyUpgrade() {
+      const cost = 50 * mult;
+      if (score >= cost) {
+        score -= cost;
+        mult += 1;
+        updateDisplay();
+      } else {
+        alert("Ikke nok poeng!");
+      }
+    }
+
+    function claimBonus() {
+      if (!bonusClaimed) {
+        mult += 5;
+        bonusClaimed = true;
+        updateDisplay();
+        document.getElementById('bonusMsg').textContent = '+5x BONUS LÅST OPP! 🎉';
+      }
+    }
+
+    function showMenu(id) {
+      document.querySelectorAll('.menu').forEach(div => div.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    updateDisplay();
+  </script>
+</body>
+</html>
