@@ -2,30 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>TurboTales 3D Racing (Demo)</title>
+  <title>TurboTales 3D Racing</title>
   <style>
     body {
       margin: 0;
-      font-family: sans-serif;
       background: #111;
       color: white;
+      font-family: sans-serif;
       text-align: center;
     }
     h1 { margin-top: 20px; }
-    .menu, .race-ui { display: none; }
-    .menu.active, .race-ui.active { display: block; }
-    button {
-      padding: 12px 24px;
+    .menu { display: none; }
+    .active { display: block; }
+    .btn {
+      padding: 14px 30px;
       margin: 10px;
       font-size: 20px;
-      border-radius: 10px;
+      background: #444;
       border: none;
+      border-radius: 10px;
       cursor: pointer;
     }
-    select {
+    .section { margin-top: 30px; }
+    img {
+      width: 100px;
+      height: auto;
+      margin: 10px;
+      border-radius: 12px;
+    }
+    .grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .card {
+      background: #222;
       padding: 10px;
-      font-size: 18px;
-      margin-top: 10px;
+      border-radius: 10px;
+      width: 140px;
+    }
+    .card img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .card p {
+      margin-top: 8px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -33,66 +57,72 @@
 
   <div id="mainMenu" class="menu active">
     <h1>🏁 TurboTales 3D Racing</h1>
-
-    <h2>Velg Bil</h2>
-    <select id="carSelect">
-      <option value="basic">Basic Racer</option>
-      <option value="fast">Speedster</option>
-      <option value="turbo">TurboTales EX (SUB Only)</option>
-    </select>
-
-    <h2>Velg Bane</h2>
-    <select id="trackSelect">
-      <option value="forest">🌲 Forest Loop</option>
-      <option value="city">🌆 City Rush</option>
-      <option value="mountain">⛰️ Mountain Pass</option>
-      <option value="desert">🏜️ Desert Drift</option>
-      <option value="ice">❄️ Ice Arena</option>
-      <option value="stadium">🏟️ Turbo Stadium</option>
-    </select>
-
-    <br><br>
-    <button onclick="startRace()">Start Race</button>
-    <br>
-    <button onclick="unlockSubCar()">🎁 Jeg har abonnert!</button>
-    <p id="subMsg" style="color: lime;"></p>
+    <button class="btn" onclick="showMenu('cars')">🚗 Cars</button>
+    <button class="btn" onclick="showMenu('tracks')">🛣️ Tracks</button>
+    <button class="btn" onclick="alert('Multiplayer starter race med bots hvis alene!')">Play</button>
+    <div class="section">
+      <h3>Support our socials</h3>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube" />
+      <img src="https://upload.wikimedia.org/wikipedia/en/0/0a/TikTok_logo.svg" alt="TikTok" />
+    </div>
   </div>
 
-  <div id="raceUI" class="race-ui">
-    <h2>🚘 Race in progress...</h2>
-    <p>Bilen: <span id="selectedCarText"></span> | Bane: <span id="selectedTrackText"></span></p>
-    <p>(Spillmotor og 3D kommer i neste steg 😉)</p>
-    <button onclick="goBack()">Tilbake til meny</button>
+  <div id="carsMenu" class="menu">
+    <h2>Velg en bil du eier:</h2>
+    <div class="grid">
+      <div class="card">
+        <img src="https://i.imgur.com/QrKRVqz.png" alt="Basic Car" />
+        <p>Basic Racer<br>🚀 Speed: ★★☆☆☆</p>
+      </div>
+      <div class="card">
+        <img src="https://i.imgur.com/t8n4Kov.png" alt="Speedster" />
+        <p>Speedster<br>🚀 Speed: ★★★★☆</p>
+      </div>
+      <div class="card">
+        <img src="https://i.imgur.com/l9ZdxIC.png" alt="TurboTales EX" />
+        <p>TurboTales EX<br>💎 Kun for abonnenter</p>
+      </div>
+    </div>
+    <button class="btn" onclick="showMenu('main')">Tilbake</button>
+  </div>
+
+  <div id="tracksMenu" class="menu">
+    <h2>Velg en bane:</h2>
+    <div class="grid">
+      <div class="card">
+        <img src="https://i.imgur.com/4TkQ4VH.jpeg" alt="Forest Loop" />
+        <p>🌲 Forest Loop</p>
+      </div>
+      <div class="card">
+        <img src="https://i.imgur.com/hOT6qBq.jpeg" alt="City Rush" />
+        <p>🌆 City Rush</p>
+      </div>
+      <div class="card">
+        <img src="https://i.imgur.com/cx2vEbz.jpeg" alt="Mountain Pass" />
+        <p>⛰️ Mountain Pass</p>
+      </div>
+      <div class="card">
+        <img src="https://i.imgur.com/okRAcyV.jpeg" alt="Desert Drift" />
+        <p>🏜️ Desert Drift</p>
+      </div>
+      <div class="card">
+        <img src="https://i.imgur.com/vpTvY0G.jpeg" alt="Ice Arena" />
+        <p>❄️ Ice Arena</p>
+      </div>
+      <div class="card">
+        <img src="https://i.imgur.com/ZQZ7DUp.jpeg" alt="Turbo Stadium" />
+        <p>🏟️ Turbo Stadium</p>
+      </div>
+    </div>
+    <button class="btn" onclick="showMenu('main')">Tilbake</button>
   </div>
 
   <script>
-    let subUnlocked = false;
-
-    function unlockSubCar() {
-      subUnlocked = true;
-      const carSelect = document.getElementById("carSelect");
-      carSelect.innerHTML += `<option value="turbo">TurboTales EX (Unlocked)</option>`;
-      document.getElementById("subMsg").textContent = "✅ TurboTales EX låst opp!";
-    }
-
-    function startRace() {
-      const selectedCar = document.getElementById("carSelect").value;
-      const selectedTrack = document.getElementById("trackSelect").value;
-
-      if (selectedCar === "turbo" && !subUnlocked) {
-        alert("Denne bilen krever at du abonnerer på YouTube!");
-        return;
-      }
-
-      document.getElementById("mainMenu").classList.remove("active");
-      document.getElementById("raceUI").classList.add("active");
-      document.getElementById("selectedCarText").textContent = selectedCar;
-      document.getElementById("selectedTrackText").textContent = selectedTrack;
-    }
-
-    function goBack() {
-      document.getElementById("raceUI").classList.remove("active");
-      document.getElementById("mainMenu").classList.add("active");
+    function showMenu(name) {
+      document.querySelectorAll('.menu').forEach(menu => menu.classList.remove('active'));
+      if (name === 'main') document.getElementById('mainMenu').classList.add('active');
+      if (name === 'cars') document.getElementById('carsMenu').classList.add('active');
+      if (name === 'tracks') document.getElementById('tracksMenu').classList.add('active');
     }
   </script>
 
