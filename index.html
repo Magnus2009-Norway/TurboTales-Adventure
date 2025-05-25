@@ -23,15 +23,15 @@
     .container {
       padding: 20px;
     }
-    textarea {
+    textarea, input[type="file"] {
       width: 90%;
-      height: 100px;
       background: #222;
       color: white;
       border: 1px solid #555;
       border-radius: 8px;
       padding: 10px;
       font-size: 16px;
+      margin-top: 10px;
     }
     button {
       margin-top: 10px;
@@ -43,7 +43,7 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .feedback-box {
+    .feedback-box, .history-box {
       margin-top: 30px;
       background: #1a1a1a;
       padding: 20px;
@@ -70,6 +70,11 @@
     .socials img:hover {
       transform: scale(1.1);
     }
+    img.uploaded-img {
+      max-width: 300px;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
@@ -79,20 +84,26 @@
 
   <div class="container">
     <h2>1. Del en idé, bilde eller tekst</h2>
-    <textarea placeholder="Skriv din idé eller lenk til et bilde..."></textarea>
+    <textarea id="postText" placeholder="Skriv din idé..."></textarea>
     <br>
-    <button onclick="alert('Innlegget ditt er postet (ikke ekte backend ennå)')">Post</button>
+    <input type="file" id="postImage" accept="image/*">
+    <br>
+    <button onclick="submitPost()">Post</button>
 
     <div class="feedback-box">
       <h2>2. Gi ærlig feedback</h2>
-      <p><em>Vurder dette innlegget:</em></p>
-      <blockquote style="color: #ccc;">"Jeg tenker å lage en app som oversetter tanker til tekst – mulig?"</blockquote>
+      <div id="randomPost"></div>
       <label for="score">Score (1–10):</label>
       <input type="number" id="score" min="1" max="10" value="5" />
       <br><br>
-      <textarea placeholder="Hvordan kan det bli bedre?"></textarea>
+      <textarea id="feedbackText" placeholder="Hvordan kan det bli bedre?"></textarea>
       <br>
-      <button onclick="alert('Feedback sendt!')">Send feedback</button>
+      <button onclick="submitFeedback()">Send feedback</button>
+    </div>
+
+    <div class="history-box">
+      <h2>Dine innsendte poster & feedback</h2>
+      <div id="postHistory"></div>
     </div>
   </div>
 
@@ -107,5 +118,76 @@
       </a>
     </div>
   </footer>
+
+  <script>
+    let posts = JSON.parse(localStorage.getItem("mirror_posts")) || [];
+
+    function submitPost() {
+      const text = document.getElementById("postText").value;
+      const imgInput = document.getElementById("postImage");
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const imgData = imgInput.files.length > 0 ? e.target.result : null;
+        const post = { text, img: imgData, feedback: [] };
+        posts.push(post);
+        localStorage.setItem("mirror_posts", JSON.stringify(posts));
+        alert("Innlegg postet!");
+        location.reload();
+      };
+
+      if (imgInput.files.length > 0) {
+        reader.readAsDataURL(imgInput.files[0]);
+      } else {
+        reader.onload();
+      }
+    }
+
+    function getRandomPost() {
+      if (posts.length === 0) return "Ingen innlegg ennå.";
+      const idx = Math.floor(Math.random() * posts.length);
+      const post = posts[idx];
+      let html = `<blockquote>"${post.text}"</blockquote>`;
+      if (post.img) {
+        html += `<img src="${post.img}" class="uploaded-img" />`;
+      }
+      html += `<input type='hidden' id='currentPostIndex' value='${idx}'>`;
+      document.getElementById("randomPost").innerHTML = html;
+    }
+
+    function submitFeedback() {
+      const index = document.getElementById("currentPostIndex").value;
+      const score = document.getElementById("score").value;
+      const text = document.getElementById("feedbackText").value;
+      if (!posts[index].feedback) posts[index].feedback = [];
+      posts[index].feedback.push({ score, text });
+      localStorage.setItem("mirror_posts", JSON.stringify(posts));
+      alert("Feedback sendt!");
+      getRandomPost();
+    }
+
+    function renderPostHistory() {
+      let html = "";
+      posts.forEach((post, i) => {
+        html += `<div style='margin-bottom:20px;'>
+          <strong>${post.text}</strong><br>`;
+        if (post.img) {
+          html += `<img src='${post.img}' class='uploaded-img'><br>`;
+        }
+        if (post.feedback && post.feedback.length > 0) {
+          html += `<em>Feedback mottatt:</em><ul>`;
+          post.feedback.forEach(f => {
+            html += `<li>${f.score}/10 – ${f.text}</li>`;
+          });
+          html += `</ul>`;
+        }
+        html += `</div>`;
+      });
+      document.getElementById("postHistory").innerHTML = html;
+    }
+
+    getRandomPost();
+    renderPostHistory();
+  </script>
 </body>
 </html>
