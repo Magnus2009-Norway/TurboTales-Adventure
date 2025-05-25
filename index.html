@@ -1,69 +1,143 @@
 <!DOCTYPE html>
-<html lang="no">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>TurboTales Drift</title>
+  <meta charset="UTF-8" />
+  <title>TurboTales Boss Fight</title>
   <style>
-    body { margin: 0; background: #111; overflow: hidden; }
-    canvas { display: block; margin: auto; background: #333; outline: none; }
-    #ui {
-      position: absolute;
-      top: 10px; left: 10px;
-      color: white;
+    body {
+      margin: 0;
+      background: #111;
       font-family: sans-serif;
+      overflow: hidden;
+      color: white;
+      text-align: center;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+      background: #000;
+    }
+    #menu, #game {
+      display: none;
+    }
+    .btn {
+      background: #444;
+      color: white;
+      padding: 12px 24px;
+      margin: 10px;
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    #scoreDisplay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
       font-size: 18px;
-      z-index: 10;
     }
   </style>
 </head>
 <body>
+  <div id="menu">
+    <h1>🚀 TurboTales Boss Fight</h1>
+    <button class="btn" onclick="startGame()">Play</button>
+    <button class="btn" onclick="alert('Multiplayer is coming soon!')">Multiplayer</button>
+    <button class="btn" onclick="alert('Settings will be added later.')">Settings</button>
+  </div>
 
-  <canvas id="gameCanvas" width="800" height="600" tabindex="0"></canvas>
-  <div id="ui">🚗 TurboTales Drift — Score: <span id="score">0</span></div>
+  <div id="game">
+    <div id="scoreDisplay">Score: <span id="score">0</span></div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+  </div>
 
   <script>
+    const menu = document.getElementById("menu");
+    const game = document.getElementById("game");
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
+    const scoreText = document.getElementById("score");
 
-    let x = 400, y = 300, angle = 0;
-    let speed = 0, score = 0;
+    let player = { x: 400, y: 300, size: 20 };
+    let bullets = [];
+    let enemies = [];
+    let score = 0;
     const keys = {};
 
-    canvas.focus(); // canvas får tastaturkontroll
+    document.addEventListener("keydown", e => keys[e.key] = true);
+    document.addEventListener("keyup", e => keys[e.key] = false);
 
-    canvas.addEventListener("keydown", e => keys[e.key] = true);
-    canvas.addEventListener("keyup", e => keys[e.key] = false);
+    function startGame() {
+      menu.style.display = "none";
+      game.style.display = "block";
+      gameLoop();
+      spawnEnemies();
+    }
+
+    function drawPlayer() {
+      ctx.fillStyle = "#00f";
+      ctx.fillRect(player.x - player.size/2, player.y - player.size/2, player.size, player.size);
+    }
+
+    function movePlayer() {
+      if (keys["ArrowLeft"] || keys["a"]) player.x -= 5;
+      if (keys["ArrowRight"] || keys["d"]) player.x += 5;
+      if (keys["ArrowUp"] || keys["w"]) player.y -= 5;
+      if (keys["ArrowDown"] || keys["s"]) player.y += 5;
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.code === "Space") {
+        bullets.push({ x: player.x, y: player.y, r: 5 });
+      }
+    });
+
+    function drawBullets() {
+      ctx.fillStyle = "#0f0";
+      bullets.forEach((b, i) => {
+        b.y -= 10;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fill();
+        if (b.y < 0) bullets.splice(i, 1);
+      });
+    }
+
+    function drawEnemies() {
+      ctx.fillStyle = "red";
+      enemies.forEach((e, ei) => {
+        e.y += 2;
+        ctx.fillRect(e.x, e.y, 20, 20);
+
+        bullets.forEach((b, bi) => {
+          if (b.x > e.x && b.x < e.x + 20 && b.y > e.y && b.y < e.y + 20) {
+            enemies.splice(ei, 1);
+            bullets.splice(bi, 1);
+            score++;
+            scoreText.textContent = score;
+          }
+        });
+
+        if (e.y > canvas.height) enemies.splice(ei, 1);
+      });
+    }
+
+    function spawnEnemies() {
+      setInterval(() => {
+        enemies.push({ x: Math.random() * (canvas.width - 20), y: -20 });
+      }, 1000);
+    }
 
     function gameLoop() {
-      ctx.fillStyle = "#222";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      if (keys["ArrowUp"]) speed += 0.2;
-      if (keys["ArrowDown"]) speed -= 0.2;
-      if (keys["ArrowLeft"]) angle -= 0.05;
-      if (keys["ArrowRight"]) angle += 0.05;
-
-      speed *= 0.95;
-      x += Math.cos(angle) * speed;
-      y += Math.sin(angle) * speed;
-
-      // score logikk
-      score += Math.abs(speed * 0.1);
-      document.getElementById("score").textContent = Math.floor(score);
-
-      // tegn bilen
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(angle);
-      ctx.fillStyle = "#00ffff";
-      ctx.fillRect(-20, -10, 40, 20);
-      ctx.restore();
-
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      movePlayer();
+      drawPlayer();
+      drawBullets();
+      drawEnemies();
       requestAnimationFrame(gameLoop);
     }
 
-    gameLoop();
+    menu.style.display = "block";
   </script>
-
 </body>
 </html>
