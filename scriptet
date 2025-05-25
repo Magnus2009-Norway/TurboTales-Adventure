@@ -1,84 +1,92 @@
-// TurboTales Adventure - Platformer Game
-import React, { useEffect, useRef, useState } from "react";
+// TurboTales Adventure - Canvas Platformer Game
+import React, { useEffect, useRef } from "react";
 
 export default function TurboTalesAdventure() {
   const canvasRef = useRef(null);
-  const [player, setPlayer] = useState({ x: 50, y: 250, vx: 0, vy: 0 });
-  const [keys, setKeys] = useState({});
-  const gravity = 0.5;
-  const groundY = 300;
+  const player = useRef({ x: 100, y: 250, vx: 0, vy: 0 });
+  const keys = useRef({});
+  const gravity = 0.6;
+  const groundLevel = 360;
 
   useEffect(() => {
-    const handleKeyDown = (e) => setKeys((prev) => ({ ...prev, [e.key]: true }));
-    const handleKeyUp = (e) => setKeys((prev) => ({ ...prev, [e.key]: false }));
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    let ytImage = new Image();
+    let ttImage = new Image();
+    ytImage.src = "/yt.png";
+    ttImage.src = "/tiktok.png";
+
+    const handleKeyDown = (e) => (keys.current[e.key] = true);
+    const handleKeyUp = (e) => (keys.current[e.key] = false);
+
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
+
+    const draw = () => {
+      ctx.fillStyle = "#1a1a1a";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw ground
+      ctx.fillStyle = "#444";
+      ctx.fillRect(0, groundLevel, canvas.width, 40);
+
+      // Draw player
+      ctx.fillStyle = "#00bfff";
+      ctx.fillRect(player.current.x, player.current.y, 40, 40);
+
+      // Draw branding
+      ctx.drawImage(ytImage, 20, 20, 40, 40);
+      ctx.fillStyle = "white";
+      ctx.font = "16px Arial";
+      ctx.fillText("@TurboTalesnrwy", 70, 45);
+
+      ctx.drawImage(ttImage, 20, 70, 40, 40);
+      ctx.fillText("@turbotales02", 70, 95);
+    };
+
+    const update = () => {
+      const p = player.current;
+
+      // Left and right
+      if (keys.current["ArrowLeft"]) p.vx = -4;
+      else if (keys.current["ArrowRight"]) p.vx = 4;
+      else p.vx = 0;
+
+      // Jump
+      if ((keys.current[" "] || keys.current["ArrowUp"]) && p.y >= groundLevel - 40) {
+        p.vy = -12;
+      }
+
+      // Gravity
+      p.vy += gravity;
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Ground collision
+      if (p.y > groundLevel - 40) {
+        p.y = groundLevel - 40;
+        p.vy = 0;
+      }
+    };
+
+    const gameLoop = () => {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    };
+
+    gameLoop();
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
 
-  useEffect(() => {
-    const ctx = canvasRef.current.getContext("2d");
-    let animationFrameId;
-
-    const draw = () => {
-      ctx.clearRect(0, 0, 800, 400);
-      ctx.fillStyle = "#333";
-      ctx.fillRect(0, groundY, 800, 100);
-
-      ctx.fillStyle = "#00f";
-      ctx.fillRect(player.x, player.y, 30, 30);
-
-      // Draw TurboTales branding
-      const ytImg = new Image();
-      ytImg.src = "/yt.png";
-      ctx.drawImage(ytImg, 10, 10, 40, 40);
-      ctx.fillStyle = "#fff";
-      ctx.fillText("@TurboTalesnrwy", 60, 35);
-
-      const ttImg = new Image();
-      ttImg.src = "/tiktok.png";
-      ctx.drawImage(ttImg, 10, 60, 40, 40);
-      ctx.fillText("@turbotales02", 60, 85);
-    };
-
-    const update = () => {
-      let newPlayer = { ...player };
-      if (keys["ArrowLeft"]) newPlayer.vx = -3;
-      else if (keys["ArrowRight"]) newPlayer.vx = 3;
-      else newPlayer.vx = 0;
-
-      if (keys[" "] || keys["ArrowUp"]) {
-        if (player.y >= groundY - 30) newPlayer.vy = -10;
-      }
-
-      newPlayer.vy += gravity;
-      newPlayer.x += newPlayer.vx;
-      newPlayer.y += newPlayer.vy;
-      if (newPlayer.y > groundY - 30) {
-        newPlayer.y = groundY - 30;
-        newPlayer.vy = 0;
-      }
-      setPlayer(newPlayer);
-    };
-
-    const gameLoop = () => {
-      update();
-      draw();
-      animationFrameId = requestAnimationFrame(gameLoop);
-    };
-
-    gameLoop();
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [player, keys]);
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
-      <h1 className="text-4xl font-bold mb-4">TurboTales Adventure</h1>
-      <canvas ref={canvasRef} width={800} height={400} className="border-2 border-white" />
-      <p className="mt-4">Use arrow keys or spacebar to move and jump!</p>
+    <div className="bg-black min-h-screen flex flex-col items-center justify-center text-white">
+      <h1 className="text-4xl font-bold mb-4">TurboTales Adventure 🎮</h1>
+      <canvas ref={canvasRef} width={800} height={400} className="border-4 border-white" />
+      <p className="mt-4">Bruk piltaster og spacebar for å styre karakteren din!</p>
     </div>
   );
 }
