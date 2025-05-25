@@ -23,7 +23,7 @@
     .container {
       padding: 20px;
     }
-    textarea, input[type="file"] {
+    textarea, input[type="file"], input[type="text"], input[type="password"], input[type="email"], input[type="search"] {
       width: 90%;
       background: #222;
       color: white;
@@ -43,7 +43,7 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .feedback-box, .history-box {
+    .feedback-box, .history-box, .auth-box, .profile-box {
       margin-top: 30px;
       background: #1a1a1a;
       padding: 20px;
@@ -75,14 +75,41 @@
       margin-top: 10px;
       border-radius: 8px;
     }
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      display: none;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>🪞 Mirror – Ærlig og anonym feedback</h1>
+    <div id="userInfo"></div>
+    <button onclick="logout()">Logg ut</button>
   </header>
 
-  <div class="container">
+  <div id="authSection" class="container">
+    <div class="auth-box">
+      <h2>Registrer deg</h2>
+      <input type="text" id="regUser" placeholder="Brukernavn">
+      <input type="password" id="regPass" placeholder="Passord">
+      <input type="email" id="regEmail" placeholder="Gmail">
+      <button onclick="register()">Sign up</button>
+      <h3>Eller logg inn</h3>
+      <input type="text" id="logUser" placeholder="Brukernavn">
+      <input type="password" id="logPass" placeholder="Passord">
+      <button onclick="login()">Log in</button>
+    </div>
+  </div>
+
+  <div id="mainApp" class="container" style="display:none;">
     <h2>1. Del en idé, bilde eller tekst</h2>
     <textarea id="postText" placeholder="Skriv din idé..."></textarea>
     <br>
@@ -92,6 +119,7 @@
 
     <div class="feedback-box">
       <h2>2. Gi ærlig feedback</h2>
+      <input type="search" id="searchBox" placeholder="Søk i poster..." oninput="searchPosts()">
       <div id="randomPost"></div>
       <label for="score">Score (1–10):</label>
       <input type="number" id="score" min="1" max="10" value="5" />
@@ -101,8 +129,9 @@
       <button onclick="submitFeedback()">Send feedback</button>
     </div>
 
-    <div class="history-box">
-      <h2>Dine innsendte poster & feedback</h2>
+    <div class="profile-box">
+      <h2>Your Profile</h2>
+      <button onclick="renderPostHistory()">Se dine poster og feedback</button>
       <div id="postHistory"></div>
     </div>
   </div>
@@ -119,21 +148,70 @@
     </div>
   </footer>
 
+  <div id="toast"></div>
+
   <script>
     let posts = JSON.parse(localStorage.getItem("mirror_posts")) || [];
+    let currentUser = localStorage.getItem("mirror_user") || null;
+    const bannedWords = ["fuck", "shit", "helvete", "idiot", "hore"];
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.innerText = msg;
+      toast.style.display = "block";
+      setTimeout(() => toast.style.display = "none", 3000);
+    }
+
+    function filterText(text) {
+      let clean = text;
+      bannedWords.forEach(word => {
+        const regex = new RegExp(word, 'gi');
+        clean = clean.replace(regex, '***');
+      });
+      return clean;
+    }
+
+    function updateUserInfo() {
+      document.getElementById("userInfo").innerText = currentUser ? `Logget inn som ${currentUser}` : "";
+    }
+
+    function register() {
+      const u = document.getElementById("regUser").value;
+      const p = document.getElementById("regPass").value;
+      const e = document.getElementById("regEmail").value;
+      if (!u || !p || !e) return showToast("Fyll inn alle felt!");
+      localStorage.setItem("user_" + u, JSON.stringify({ pass: p, email: e }));
+      localStorage.setItem("mirror_user", u);
+      location.reload();
+    }
+
+    function login() {
+      const u = document.getElementById("logUser").value;
+      const p = document.getElementById("logPass").value;
+      const data = JSON.parse(localStorage.getItem("user_" + u));
+      if (!data || data.pass !== p) return showToast("Feil brukernavn/passord");
+      localStorage.setItem("mirror_user", u);
+      location.reload();
+    }
+
+    function logout() {
+      localStorage.removeItem("mirror_user");
+      location.reload();
+    }
 
     function submitPost() {
-      const text = document.getElementById("postText").value;
+      const text = filterText(document.getElementById("postText").value);
       const imgInput = document.getElementById("postImage");
       const reader = new FileReader();
 
       reader.onload = function(e) {
         const imgData = imgInput.files.length > 0 ? e.target.result : null;
-        const post = { text, img: imgData, feedback: [] };
+        const post = { user: currentUser, text, img: imgData, feedback: [] };
         posts.push(post);
         localStorage.setItem("mirror_posts", JSON.stringify(posts));
-        alert("Innlegg postet!");
-        location.reload();
+        showToast("Innlegg postet!");
+        getRandomPost();
+        renderPostHistory();
       };
 
       if (imgInput.files.length > 0) {
@@ -143,51 +221,69 @@
       }
     }
 
-    function getRandomPost() {
-      if (posts.length === 0) return "Ingen innlegg ennå.";
-      const idx = Math.floor(Math.random() * posts.length);
-      const post = posts[idx];
+    function getRandomPost(filtered = posts) {
+      if (filtered.length === 0) return;
+      const idx = Math.floor(Math.random() * filtered.length);
+      const post = filtered[idx];
       let html = `<blockquote>"${post.text}"</blockquote>`;
       if (post.img) {
         html += `<img src="${post.img}" class="uploaded-img" />`;
       }
-      html += `<input type='hidden' id='currentPostIndex' value='${idx}'>`;
+      html += `<input type='hidden' id='currentPostIndex' value='${posts.indexOf(post)}'>`;
       document.getElementById("randomPost").innerHTML = html;
+    }
+
+    function searchPosts() {
+      const term = document.getElementById("searchBox").value.toLowerCase();
+      const filtered = posts.filter(p => p.text.toLowerCase().includes(term));
+      getRandomPost(filtered);
     }
 
     function submitFeedback() {
       const index = document.getElementById("currentPostIndex").value;
       const score = document.getElementById("score").value;
-      const text = document.getElementById("feedbackText").value;
+      const text = filterText(document.getElementById("feedbackText").value);
       if (!posts[index].feedback) posts[index].feedback = [];
-      posts[index].feedback.push({ score, text });
+      posts[index].feedback.push({ user: currentUser, score, text });
       localStorage.setItem("mirror_posts", JSON.stringify(posts));
-      alert("Feedback sendt!");
+      showToast("Feedback sendt!");
       getRandomPost();
     }
 
     function renderPostHistory() {
       let html = "";
-      posts.forEach((post, i) => {
-        html += `<div style='margin-bottom:20px;'>
-          <strong>${post.text}</strong><br>`;
-        if (post.img) {
-          html += `<img src='${post.img}' class='uploaded-img'><br>`;
+      posts.forEach(post => {
+        if (post.user === currentUser) {
+          html += `<div style='margin-bottom:20px;'>
+            <strong>${post.text}</strong><br>`;
+          if (post.img) {
+            html += `<img src='${post.img}' class='uploaded-img'><br>`;
+          }
+          if (post.feedback && post.feedback.length > 0) {
+            html += `<em>Feedback mottatt:</em><ul>`;
+            post.feedback.forEach(f => {
+              html += `<li>${f.score}/10 – ${f.text}</li>`;
+            });
+            html += `</ul>`;
+          }
+          html += `</div>`;
         }
-        if (post.feedback && post.feedback.length > 0) {
-          html += `<em>Feedback mottatt:</em><ul>`;
-          post.feedback.forEach(f => {
-            html += `<li>${f.score}/10 – ${f.text}</li>`;
-          });
-          html += `</ul>`;
-        }
-        html += `</div>`;
+        post.feedback?.forEach(fb => {
+          if (fb.user === currentUser) {
+            html += `<div><em>Du ga feedback på:</em><br>"${post.text}"<br><strong>${fb.score}/10</strong> – ${fb.text}</div><hr>`;
+          }
+        });
       });
       document.getElementById("postHistory").innerHTML = html;
     }
 
-    getRandomPost();
-    renderPostHistory();
+    if (currentUser) {
+      document.getElementById("authSection").style.display = "none";
+      document.getElementById("mainApp").style.display = "block";
+      updateUserInfo();
+      getRandomPost();
+      renderPostHistory();
+    }
   </script>
 </body>
 </html>
